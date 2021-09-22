@@ -7,7 +7,7 @@ endif
 
 include $(DEVKITARM)/ds_rules
 
-export GAME_TITLE	:=	GameYob `git describe --always --abbrev=4`
+export GAME_TITLE	:=	GameYob
 export GAME_SUBTITLE1	:=	A Gameboy emulator for DS
 export GAME_SUBTITLE2	:=	Author: Drenn
 export GAME_ICON	:=	$(CURDIR)/icon.bmp
@@ -23,10 +23,15 @@ GID = GYOB
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-all: $(TARGET).nds $(TARGET).cia
+ifeq (, $("shell which $(make_cia)"))
+all:	$(TARGET).nds $(TARGET)_dsi.nds
+else
+all:	$(TARGET).nds $(TARGET).cia
+endif
 
 #---------------------------------------------------------------------------------
 $(TARGET).nds	:	arm7/$(TARGET).elf arm9/$(TARGET).elf
+	@echo $ndstool
 	@ndstool -7 arm7/$(TARGET).elf -9 arm9/$(TARGET).elf -b $(GAME_ICON) "$(GAME_TITLE);$(GAME_SUBTITLE1);$(GAME_SUBTITLE2)" -h 0x200 -c $(TARGET).nds 
 	@echo built ... $(notdir $@)
 
