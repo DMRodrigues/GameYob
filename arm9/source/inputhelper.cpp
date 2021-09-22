@@ -1011,6 +1011,9 @@ int loadState(int stateNum) {
     char statename[100];
     int version;
 
+    if (!checkStateExists(stateNum))
+        return 1;
+
     memset(&state, 0, sizeof(StateStruct));
 
     get_statename(statename, basename, stateNum);
@@ -1134,6 +1137,8 @@ void deleteState(int stateNum) {
 
 bool checkStateExists(int stateNum) {
     char statename[256];
+
+    if (*basename == 0) return false;
 
     get_statename(statename, basename, stateNum);
 

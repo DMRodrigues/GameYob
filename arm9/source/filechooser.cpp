@@ -211,7 +211,7 @@ char* startFileChooser(const char* extensions[], bool romExtensions, bool canQui
     updateScreens(true); // Screen may need to be enabled
 
     int numExtensions = sizeof(extensions)/sizeof(const char*);
-    char* retval;
+    char* retval = NULL;
     char buffer[256];
     char cwd[256];
     getcwd(cwd, 256);
