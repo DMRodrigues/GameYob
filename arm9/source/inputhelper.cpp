@@ -61,6 +61,34 @@ std::vector<int> lastBanksUsed;
 
 bool suspendStateExists;
 
+
+static char savefolder[100];
+
+inline void set_savefolder(const char *basename) {
+  *savefolder = 0;
+  if (strncmp(basename, "sd:/", strlen("sd:/")) && strncmp(basename, "fat:/", strlen("fat:/"))) {
+    strcpy(savefolder, (access("sd:/", F_OK) == 0) ? "sd:/" : "fat:/");
+  }
+  strcat(savefolder, basename);
+  *(strrchr(savefolder, '/')) = '\0';
+  strcat(savefolder, "/saves");
+  mkdir(savefolder, 0777); /* return error if exists, but it's safe */
+}
+
+inline void set_savename() {
+  siprintf(savename, "%s%s.sav", savefolder, strrchr(basename, '/'));
+}
+
+inline void get_statename(char *dest, const char *basename, int state_num) {
+  if (state_num == -1) {
+    siprintf(dest, "%s%s.yss", savefolder, strrchr(basename, '/'));
+  }
+  else {
+    siprintf(dest, "%s%s.ys%d", savefolder, strrchr(basename, '/'), state_num);
+  }
+}
+
+
 void initInput()
 {
     fatInit(FAT_CACHE_SIZE, true);
@@ -510,8 +538,9 @@ int loadRom(char* f)
 
     strcpy(basename, filename);
     *(strrchr(basename, '.')) = '\0';
-    strcpy(savename, basename);
-    strcat(savename, ".sav");
+
+    set_savefolder(basename);
+    set_savename();
 
     cgbFlag = romSlot0[0x143];
     romSize = romSlot0[0x148];
@@ -917,10 +946,8 @@ void saveState(int stateNum) {
     StateStruct state;
     char statename[100];
 
-    if (stateNum == -1)
-        siprintf(statename, "%s.yss", basename);
-    else
-        siprintf(statename, "%s.ys%d", basename, stateNum);
+    get_statename(statename, basename, stateNum);
+
     outFile = fopen(statename, "w");
 
     if (outFile == 0) {
@@ -986,10 +1013,8 @@ int loadState(int stateNum) {
 
     memset(&state, 0, sizeof(StateStruct));
 
-    if (stateNum == -1)
-        siprintf(statename, "%s.yss", basename);
-    else
-        siprintf(statename, "%s.ys%d", basename, stateNum);
+    get_statename(statename, basename, stateNum);
+
     inFile = fopen(statename, "r");
 
     if (inFile == 0) {
@@ -1102,20 +1127,16 @@ void deleteState(int stateNum) {
 
     char statename[100];
 
-    if (stateNum == -1)
-        siprintf(statename, "%s.yss", basename);
-    else
-        siprintf(statename, "%s.ys%d", basename, stateNum);
+    get_statename(statename, basename, stateNum);
+
     unlink(statename);
 }
 
 bool checkStateExists(int stateNum) {
     char statename[256];
 
-    if (stateNum == -1)
-        siprintf(statename, "%s.yss", basename);
-    else
-        siprintf(statename, "%s.ys%d", basename, stateNum);
+    get_statename(statename, basename, stateNum);
+
     return access(statename, R_OK) == 0;
     /*
     file = fopen(statename, "r");

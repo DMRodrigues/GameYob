@@ -375,8 +375,13 @@ char* startFileChooser(const char* extensions[], bool romExtensions, bool canQui
                     else {
                         // Copy the result to a new allocation, as the
                         // filename would become unavailable when freed.
-                        retval = (char*) malloc(sizeof(char) * (strlen(filenames[fileSelection]) + 1));
-                        strcpy(retval, filenames[fileSelection]);
+                        /* hack to get the path + name */
+                        char new_filename[100];
+                        getcwd(new_filename, sizeof(new_filename));
+                        strcat(new_filename, filenames[fileSelection]);
+                        retval = (char*) malloc(sizeof(char) * (strlen(new_filename) + 1));
+                        strcpy(retval, new_filename);
+
                         // free memory used for filenames in this dir
                         for (int i=0; i<numFiles; i++) {
                             free(filenames[i]);
@@ -425,6 +430,7 @@ lowerDirectory:
                 }
                 else if (keyJustPressed(KEY_Y)) {
                     if (canQuit) {
+                        if (retval) free(retval);
                         retval = NULL;
                         goto end;
                     }
