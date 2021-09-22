@@ -28,7 +28,7 @@
 
 FILE* romFile=NULL;
 FILE* saveFile=NULL;
-char filename[100];
+
 char savename[100];
 char basename[100];
 char romTitle[20];
@@ -440,6 +440,8 @@ void loadBios(const char* filename) {
 
 int loadRom(char* f)
 {
+    char filename[100];
+
     if (romFile != NULL)
         fclose(romFile);
     strcpy(filename, f);
