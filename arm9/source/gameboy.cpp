@@ -16,6 +16,8 @@
 #include "sgb.h"
 #include "gbs.h"
 
+#include "time_digits.h"
+
 int scanlineCounter;
 int doubleSpeed;
 
@@ -177,6 +179,49 @@ void gameboyCheckInput() {
         resetGameboy();
 }
 
+static inline void draw_digit(const char digit[5][4], unsigned char start_line, unsigned char column) {
+  iprintf("\x1b[%d;%dH%s", start_line,     column, digit[0]);
+  iprintf("\x1b[%d;%dH%s", start_line + 1, column, digit[1]);
+  iprintf("\x1b[%d;%dH%s", start_line + 2, column, digit[2]);
+  iprintf("\x1b[%d;%dH%s", start_line + 3, column, digit[3]);
+  iprintf("\x1b[%d;%dH%s", start_line + 4, column, digit[4]);
+}
+
+static inline void draw_line( unsigned char line, unsigned char column
+                            , unsigned char line_index
+                            , char separator
+                            , unsigned char hour_h, unsigned char hour_l
+                            , unsigned char minute_h, unsigned char minute_l )
+{
+  iprintf( "\x1b[%d;%dH%s %s %c %s %s"
+         , line, column
+         , digits[hour_h][line_index], digits[hour_l][line_index]
+         , separator
+         , digits[minute_h][line_index], digits[minute_l][line_index] );
+}
+
+static void draw_time(const time_t* rawTime) {
+  struct tm *timeStruct = localtime(rawTime);
+  unsigned char hour_high = timeStruct->tm_hour / 10;
+  unsigned char hour_low = timeStruct->tm_hour % 10;
+  unsigned char minute_high = timeStruct->tm_min / 10;
+  unsigned char minute_low = timeStruct->tm_min % 10;
+#if 1
+  draw_line(18, 14, 0, ' ', hour_high, hour_low, minute_high, minute_low);
+  draw_line(19, 14, 1, 'o', hour_high, hour_low, minute_high, minute_low);
+  draw_line(20, 14, 2, ' ', hour_high, hour_low, minute_high, minute_low);
+  draw_line(21, 14, 3, 'o', hour_high, hour_low, minute_high, minute_low);
+  draw_line(22, 14, 4, ' ', hour_high, hour_low, minute_high, minute_low);
+#else
+  draw_digit(digits[hour_high],   18, 14);
+  draw_digit(digits[hour_high],   18, 18);
+  iprintf("\x1b[%d;%dH%c",        20, 22, 'o');
+  iprintf("\x1b[%d;%dH%c",        22, 22, 'o');
+  draw_digit(digits[minute_high], 18, 24);
+  draw_digit(digits[minute_low],  18, 28);
+#endif
+}
+
 // This is called 60 times per gameboy second, even if the lcd is off.
 void gameboyUpdateVBlank() {
     gameboyFrameCounter++;
@@ -242,6 +287,9 @@ void gameboyUpdateVBlank() {
         }
         fps = 0;
         if (timeOutput) {
+#if 1
+            draw_time(&rawTime);
+#else
             for (; line<23-1; line++)
                 iprintf("\n");
             char *timeString = ctime(&rawTime);
@@ -258,6 +306,7 @@ void gameboyUpdateVBlank() {
             for (int i=0; i<spaces; i++)
                 iprintf(" ");
             iprintf("%s\n", s);
+#endif
         }
         lastRawTime = rawTime;
     }
