@@ -363,8 +363,17 @@ void generalPrintConfig(FILE* file) {
         fiprintf(file, "borderfile=%s\n", borderPath);
 }
 
+static FILE* openConfigFile(const char *type) {
+  bool sdFound = (access("sd:/", F_OK) == 0);
+  //bool flashcardFound = (access("fat:/", F_OK) == 0);
+  const char *folderPath = sdFound ? "sd:/_gb" : "fat:/_gb";
+  const char *filePath = sdFound ? "sd:/_gb/gameyobds.ini" : "fat:/_gb/gameyobds.ini";
+  mkdir(folderPath, 0777); /* return error if exists, but it's safe */
+  return fopen(filePath, type);
+}
+
 bool readConfigFile() {
-    FILE* file = fopen("/gameyobds.ini", "r");
+    FILE* file = openConfigFile("r");
     char line[100];
     void (*configParser)(const char*) = generalParseConfig;
 
@@ -407,7 +416,7 @@ end:
 }
 
 void writeConfigFile() {
-    FILE* file = fopen("/gameyobds.ini", "w");
+    FILE* file = openConfigFile("w");
     fiprintf(file, "[general]\n");
     generalPrintConfig(file);
     fiprintf(file, "[console]\n");
