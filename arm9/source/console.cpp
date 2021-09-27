@@ -56,6 +56,7 @@ extern int halt;
 extern int rumbleInserted;
 extern int rumbleStrength;
 
+unsigned char timeFormat = 1;
 
 // Private function used for simple submenus
 void subMenuGenericUpdateFunc() {
@@ -97,21 +98,25 @@ void consoleOutputFunc(int value) {
         fpsOutput = false;
         timeOutput = false;
         consoleDebugOutput = false;
+        disableMenuOption("Time Format");
     }
     else if (value == 1) {
         fpsOutput = false;
         timeOutput = true;
         consoleDebugOutput = false;
+        enableMenuOption("Time Format");
     }
     else if (value == 2) {
         fpsOutput = true;
         timeOutput = true;
         consoleDebugOutput = false;
+        enableMenuOption("Time Format");
     }
     else if (value == 3) {
         fpsOutput = false;
         timeOutput = false;
         consoleDebugOutput = true;
+        disableMenuOption("Time Format");
     }
 }
 void returnToLauncherFunc(int value) {
@@ -342,6 +347,10 @@ void setAutoSaveFunc(int value) {
         unmuteSND();
 }
 
+void timeFormatFunc(int value) {
+  timeFormat = value & 0xFF;
+}
+
 struct MenuOption {
     const char* name;
     void (*function)(int);
@@ -376,12 +385,13 @@ ConsoleSubMenu menuList[] = {
     },
     {
         "Settings",
-        8,
+        9,
         {
             {"Key Config", keyConfigFunc, 0, {}, 0},
             {"Manage Cheats", cheatFunc, 0, {}, 0},
             {"Rumble Pak", setRumbleFunc, 4, {"Off","Low","Mid","High"}, 2},
             {"Console Output", consoleOutputFunc, 4, {"Off","Time","FPS+Time","Debug"}, 0},
+            {"Time Format", timeFormatFunc, 2, {"Console","ASCII Art"}, 1},
             {"Wireless Link", nifiEnableFunc, 2, {"Off","On"}, 0},
             {"GB Printer", printerEnableFunc, 2, {"Off","On"}, 1},
             {"Autosaving", setAutoSaveFunc, 2, {"Off","On"}, 1},

@@ -222,6 +222,8 @@ static void draw_time(const time_t* rawTime) {
 #endif
 }
 
+extern int timeFormat;
+
 // This is called 60 times per gameboy second, even if the lcd is off.
 void gameboyUpdateVBlank() {
     gameboyFrameCounter++;
@@ -287,26 +289,29 @@ void gameboyUpdateVBlank() {
         }
         fps = 0;
         if (timeOutput) {
-#if 1
-            draw_time(&rawTime);
-#else
-            for (; line<23-1; line++)
+          switch (timeFormat) {
+            case 1:
+              draw_time(&rawTime);
+              break;
+            default:
+              for (; line<23-1; line++)
                 iprintf("\n");
-            char *timeString = ctime(&rawTime);
-            for (int i=0;; i++) {
+              char *timeString = ctime(&rawTime);
+              for (int i=0;; i++) {
                 if (timeString[i] == ':') {
-                    timeString += i-2;
-                    break;
+                  timeString += i-2;
+                  break;
                 }
-            }
-            char s[50];
-            strncpy(s, timeString, 50);
-            s[5] = '\0';
-            int spaces = 31-strlen(s);
-            for (int i=0; i<spaces; i++)
+              }
+              char s[50];
+              strncpy(s, timeString, 50);
+              s[5] = '\0';
+              int spaces = 31-strlen(s);
+              for (int i=0; i<spaces; i++)
                 iprintf(" ");
-            iprintf("%s\n", s);
-#endif
+              iprintf("%s\n", s);
+              break;
+            }
         }
         lastRawTime = rawTime;
     }

@@ -1,3 +1,10 @@
+# Changes
+- Moved configuration file to "_gb" folder in root path
+- Implemented bigger time print in debug (ASCII Art based)
+- Moved save and state files to "saves" folder within game folder
+
+# Readme for the original GameYob:
+
 GameYob v0.5.2
 Author: Drenn
 
