@@ -115,7 +115,7 @@ void flushFatCache() {
 const char* gbKeyNames[] = {"-","A","B","Left","Right","Up","Down","Start","Select",
     "Menu","Menu/Pause","Save","Autofire A","Autofire B", "Fast Forward", "FF Toggle", "Scale","Reset","A+B+START+SELECT"};
 const char* dsKeyNames[] = {"A","B","Select","Start","Right","Left","Up","Down",
-    "R","L","X","Y","Touch"};
+  "R","L","X","Y",/*"Touch"*/};
 
 const int NUM_DS_KEYS = sizeof(dsKeyNames)/sizeof(char*);
 const int NUM_GB_KEYS = sizeof(gbKeyNames)/sizeof(char*);
@@ -124,27 +124,27 @@ int keys[NUM_GB_KEYS];
 
 struct KeyConfig {
     char name[32];
-    int gbKeys[13];
+    int gbKeys[12];
 };
 KeyConfig defaultKeyConfig = {
     "Main",
     {KEY_GB_A,KEY_GB_B,KEY_GB_SELECT,KEY_GB_START,KEY_GB_RIGHT,KEY_GB_LEFT,KEY_GB_UP,KEY_GB_DOWN,
-        KEY_MENU,KEY_FAST_FORWARD,KEY_SAVE,KEY_SCALE,KEY_MENU}
+        KEY_MENU,KEY_FAST_FORWARD,KEY_SAVE,KEY_SCALE/*,KEY_MENU*/}
 };
 
 std::vector<KeyConfig> keyConfigs;
 unsigned int selectedKeyConfig=0;
 
 // Return false if there is no key assigned to opening the menu (including touch).
-bool checkKeyAssignedToMenu(KeyConfig* config) {
-    for (int i=0; i<NUM_DS_KEYS; i++) {
-        if (config->gbKeys[i] == KEY_MENU || config->gbKeys[i] == KEY_MENU_PAUSE) {
-            return true;
-        }
-    }
-
-    return false;
-}
+//bool checkKeyAssignedToMenu(KeyConfig* config) {
+//    for (int i=0; i<NUM_DS_KEYS; i++) {
+//        if (config->gbKeys[i] == KEY_MENU || config->gbKeys[i] == KEY_MENU_PAUSE) {
+//            return true;
+//        }
+//    }
+//
+//    return false;
+//}
 
 void loadKeyConfig() {
     KeyConfig* keyConfig = &keyConfigs[selectedKeyConfig];
@@ -154,9 +154,9 @@ void loadKeyConfig() {
         keys[keyConfig->gbKeys[i]] |= BIT(i);
     }
 
-    // Set "touch" to open the menu if nothing is assigned to the menu
-    if (!checkKeyAssignedToMenu(keyConfig))
-        keyConfig->gbKeys[12] = KEY_MENU;
+//    // Set "touch" to open the menu if nothing is assigned to the menu
+//    if (!checkKeyAssignedToMenu(keyConfig))
+//        keyConfig->gbKeys[12] = KEY_MENU;
 }
 
 void controlsParseConfig(const char* line2) {
@@ -220,7 +220,7 @@ void controlsPrintConfig(FILE* file) {
 }
 
 int keyConfigChooser_option;
-bool keyConfigChooser_printMenuWarning = false;
+//bool keyConfigChooser_printMenuWarning = false;
 
 void redrawKeyConfigChooser() {
     int& option = keyConfigChooser_option;
@@ -251,8 +251,8 @@ void redrawKeyConfigChooser() {
     if (selectedKeyConfig != 0) /* can't erase the default */ {
         iprintf("\n\nPress Y to delete this config.");
     }
-    if (keyConfigChooser_printMenuWarning)
-        iprintf("\n\nNo key is assigned to the menu!");
+    //if (keyConfigChooser_printMenuWarning)
+        //iprintf("\n\nNo key is assigned to the menu!");
 }
 
 void updateKeyConfigChooser() {
@@ -264,14 +264,14 @@ void updateKeyConfigChooser() {
     if (keyJustPressed(KEY_B)) {
         // Don't allow exiting if nothing is assigned to opening the menu
 
-        if (!checkKeyAssignedToMenu(config)) {
-            keyConfigChooser_printMenuWarning = true;
-            redrawKeyConfigChooser();
-        }
-        else {
+//        if (!checkKeyAssignedToMenu(config)) {
+//            keyConfigChooser_printMenuWarning = true;
+//            redrawKeyConfigChooser();
+//        }
+//        else {
             loadKeyConfig();
             closeSubMenu();
-        }
+//        }
     }
     else if (keyJustPressed(KEY_X)) {
         keyConfigs.push_back(KeyConfig(*config));
@@ -1153,5 +1153,4 @@ bool checkStateExists(int stateNum) {
     return true;
     */
 }
-
 

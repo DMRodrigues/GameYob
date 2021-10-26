@@ -249,9 +249,11 @@ void setScaleModeFunc(int value) {
     if (value == 0) {
         doAtVBlank(checkBorder);
         enableMenuOption("Console Output");
+        enableMenuOption("Time Format");
     }
     else {
         disableMenuOption("Console Output");
+        disableMenuOption("Time Format");
     }
 }
 void setScaleFilterFunc(int value) {
@@ -647,16 +649,18 @@ void updateMenu() {
         menu--;
         if (menu < 0)
             menu = numMenus-1;
-        if (option >= menuList[menu].numOptions)
-            option = menuList[menu].numOptions-1;
+        //if (option >= menuList[menu].numOptions)
+            //option = menuList[menu].numOptions-1;
+        option = -1;
         redraw = true;
     }
     else if (keyJustPressed(KEY_R)) {
         menu++;
         if (menu >= numMenus)
             menu = 0;
-        if (option >= menuList[menu].numOptions)
-            option = menuList[menu].numOptions-1;
+        //if (option >= menuList[menu].numOptions)
+            //option = menuList[menu].numOptions-1;
+        option = -1;
         redraw = true;
     }
     if (redraw && subMenuUpdateFunc == 0 &&
